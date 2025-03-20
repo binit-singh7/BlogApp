@@ -1,0 +1,361 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Edit Profile | BlogApp{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .edit-profile-header {
+        margin-bottom: 2rem;
+    }
+    
+    .edit-profile-title {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: var(--primary-color);
+    }
+    
+    .edit-profile-subtitle {
+        color: #6c757d;
+    }
+    
+    .profile-form {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 2rem;
+    }
+    
+    .form-section {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+    
+    .form-group-half {
+        flex: 1;
+        min-width: 250px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: var(--border-radius);
+        font-family: inherit;
+        font-size: 1rem;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+    
+    .form-help {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    .social-input {
+        display: flex;
+        align-items: center;
+    }
+    
+    .social-prefix {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-right: none;
+        padding: 0.75rem;
+        border-top-left-radius: var(--border-radius);
+        border-bottom-left-radius: var(--border-radius);
+        color: #6c757d;
+        white-space: nowrap;
+    }
+    
+    .social-control {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    
+    .avatar-upload {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .current-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .avatar-input-container {
+        flex: 1;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .btn-primary {
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+    
+    .btn-outline {
+        background-color: transparent;
+        color: #6c757d;
+        border: 1px solid #ddd;
+    }
+    
+    .btn-outline:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .messages {
+        list-style: none;
+        margin-bottom: 1.5rem;
+        padding: 0;
+    }
+    
+    .message {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: var(--border-radius);
+    }
+    
+    .message-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .message-error {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-form {
+            padding: 1.5rem;
+        }
+        
+        .avatar-upload {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .form-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-profile-container">
+    <div class="edit-profile-header">
+        <h1 class="edit-profile-title">Edit Profile</h1>
+        <p class="edit-profile-subtitle">Update your personal information and preferences</p>
+    </div>
+    
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="message {% if message.tags %}message-{{ message.tags }}{% endif %}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data" class="profile-form">
+        {% csrf_token %}
+        
+        <div class="form-section">
+            <h3 class="section-title">Personal Information</h3>
+            
+            <div class="form-row">
+                <div class="form-group-half">
+                    <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                    {{ user_form.first_name }}
+                    {% if user_form.first_name.errors %}
+                        <div class="form-error">{{ user_form.first_name.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group-half">
+                    <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                    {{ user_form.last_name }}
+                    {% if user_form.last_name.errors %}
+                        <div class="form-error">{{ user_form.last_name.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ user_form.email.id_for_label }}" class="form-label">Email Address</label>
+                {{ user_form.email }}
+                {% if user_form.email.errors %}
+                    <div class="form-error">{{ user_form.email.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group-half">
+                    <label for="{{ profile_form.location.id_for_label }}" class="form-label">Location</label>
+                    {{ profile_form.location }}
+                    {% if profile_form.location.errors %}
+                        <div class="form-error">{{ profile_form.location.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group-half">
+                    <label for="{{ profile_form.birth_date.id_for_label }}" class="form-label">Birth Date</label>
+                    {{ profile_form.birth_date }}
+                    {% if profile_form.birth_date.errors %}
+                        <div class="form-error">{{ profile_form.birth_date.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ profile_form.bio.id_for_label }}" class="form-label">Bio</label>
+                {{ profile_form.bio }}
+                {% if profile_form.bio.errors %}
+                    <div class="form-error">{{ profile_form.bio.errors }}</div>
+                {% endif %}
+                <div class="form-help">Tell us a little about yourself</div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3 class="section-title">Profile Picture</h3>
+            
+            <div class="avatar-upload">
+                {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" class="current-avatar">
+                {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ user.username }}&size=100&background=random" alt="{{ user.username }}" class="current-avatar">
+                {% endif %}
+                
+                <div class="avatar-input-container">
+                    <label for="{{ profile_form.profile_picture.id_for_label }}" class="form-label">Upload New Profile Picture</label>
+                    {{ profile_form.profile_picture }}
+                    {% if profile_form.profile_picture.errors %}
+                        <div class="form-error">{{ profile_form.profile_picture.errors }}</div>
+                    {% endif %}
+                    <div class="form-help">Recommended size: 400x400 pixels. Max size: 2MB</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3 class="section-title">Social Profiles</h3>
+            
+            <div class="form-group">
+                <label for="{{ profile_form.website.id_for_label }}" class="form-label">Website</label>
+                {{ profile_form.website }}
+                {% if profile_form.website.errors %}
+                    <div class="form-error">{{ profile_form.website.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ profile_form.twitter.id_for_label }}" class="form-label">Twitter</label>
+                <div class="social-input">
+                    <span class="social-prefix">twitter.com/</span>
+                    {{ profile_form.twitter }}
+                </div>
+                {% if profile_form.twitter.errors %}
+                    <div class="form-error">{{ profile_form.twitter.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ profile_form.github.id_for_label }}" class="form-label">GitHub</label>
+                <div class="social-input">
+                    <span class="social-prefix">github.com/</span>
+                    {{ profile_form.github }}
+                </div>
+                {% if profile_form.github.errors %}
+                    <div class="form-error">{{ profile_form.github.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ profile_form.linkedin.id_for_label }}" class="form-label">LinkedIn</label>
+                <div class="social-input">
+                    <span class="social-prefix">linkedin.com/in/</span>
+                    {{ profile_form.linkedin }}
+                </div>
+                {% if profile_form.linkedin.errors %}
+                    <div class="form-error">{{ profile_form.linkedin.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'profile' %}" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

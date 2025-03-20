@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A modern blog platform with rich content editing">
+    <title>{% block title %}Blog{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #f5f6fa;
+            --text-color: #2c3e50;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --max-width: 1200px;
+            --content-padding: 20px;
+            --navbar-height: 70px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 var(--content-padding);
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: var(--navbar-height);
+        }
+
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+
+        .logo span {
+            color: var(--secondary-color);
+        }
+
+        .navbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            height: 100%;
+        }
+
+        .nav-item {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #555;
+            font-weight: 500;
+            padding: 0 10px;
+            transition: color 0.3s ease;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--secondary-color);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--secondary-color);
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .dropdown-toggle::after {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            transform: rotate(45deg);
+            margin-top: -4px;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown:hover .dropdown-toggle::after {
+            transform: rotate(-135deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 200px;
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            padding: 0.5rem 0;
+            z-index: 100;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: #555;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: var(--secondary-color);
+            padding-left: 1.75rem;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .search-box {
+            position: relative;
+            width: 250px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 35px 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            color: #999;
+            pointer-events: none;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid #eee;
+            transition: border-color 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            border-color: var(--secondary-color);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Mobile menu */
+        .navbar-toggle {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 30px;
+            height: 30px;
+            position: relative;
+        }
+
+        .navbar-toggle span {
+            display: block;
+            position: absolute;
+            height: 3px;
+            width: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            left: 0;
+            transform: rotate(0deg);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-toggle span:nth-child(1) {
+            top: 6px;
+        }
+
+        .navbar-toggle span:nth-child(2), .navbar-toggle span:nth-child(3) {
+            top: 15px;
+        }
+
+        .navbar-toggle span:nth-child(4) {
+            top: 24px;
+        }
+
+        .navbar-toggle.active span:nth-child(1) {
+            top: 18px;
+            width: 0%;
+            left: 50%;
+        }
+
+        .navbar-toggle.active span:nth-child(2) {
+            transform: rotate(45deg);
+        }
+
+        .navbar-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg);
+        }
+
+        .navbar-toggle.active span:nth-child(4) {
+            top: 18px;
+            width: 0%;
+            left: 50%;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .search-box {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-toggle {
+                display: block;
+            }
+            
+            .navbar-menu, .auth-buttons {
+                position: fixed;
+                top: var(--navbar-height);
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                background-color: white;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+                padding: 1rem 0;
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                height: auto;
+                align-items: flex-start;
+                gap: 0;
+            }
+            
+            .navbar-menu.active, .auth-buttons.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .nav-item, .nav-link {
+                width: 100%;
+                height: auto;
+            }
+            
+            .nav-link {
+                padding: 1rem 2rem;
+            }
+            
+            .nav-link.active::after {
+                display: none;
+            }
+            
+            .nav-link.active {
+                background-color: #f8f9fa;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                width: 100%;
+                padding: 0;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+            }
+            
+            .dropdown.active .dropdown-menu {
+                max-height: 300px;
+            }
+            
+            .dropdown-toggle::after {
+                position: absolute;
+                right: 2rem;
+            }
+            
+            .search-box {
+                width: 100%;
+                margin: 1rem 2rem;
+            }
+            
+            .auth-buttons {
+                padding: 1rem 2rem;
+                gap: 1rem;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Rest of your styles */
+        .main-content {
+            min-height: calc(100vh - 70px - 200px);
+            padding: 2rem 0;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+    {% block extra_js %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <div class="navbar-brand">
+                <a href="{% url 'post_list' %}" class="logo">Blog<span>App</span></a>
+            </div>
+            
+            <button class="navbar-toggle" id="navbar-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <ul class="navbar-menu" id="navbar-menu">
+                <li class="nav-item">
+                    <a href="{% url 'post_list' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">Categories</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'post_list' %}?tag=Technology" class="dropdown-item">Technology</a></li>
+                        <li><a href="{% url 'post_list' %}?tag=Design" class="dropdown-item">Design</a></li>
+                        <li><a href="{% url 'post_list' %}?tag=Travel" class="dropdown-item">Travel</a></li>
+                        <li><a href="{% url 'post_list' %}?tag=Food" class="dropdown-item">Food</a></li>
+                        <li><a href="{% url 'post_list' %}?tag=Lifestyle" class="dropdown-item">Lifestyle</a></li>
+                    </ul>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a href="{% url 'post_create' %}" class="nav-link">Write Post</a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <div class="search-box">
+                        <form action="{% url 'post_list' %}" method="get">
+                            <input type="text" name="search" class="search-input" placeholder="Search posts..." value="{{ request.GET.search|default:'' }}">
+                            <div class="search-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </div>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+            
+            <div class="auth-buttons" id="auth-buttons">
+                {% if user.is_authenticated %}
+                <div class="user-menu dropdown">
+                    <div class="user-avatar dropdown-toggle">
+                        <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=random" alt="{{ user.username }}">
+                    </div>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'profile' %}" class="dropdown-item">My Profile</a></li>
+                        <li><a href="{% url 'edit_profile' %}" class="dropdown-item">Edit Profile</a></li>
+                        <li><a href="{% url 'post_create' %}" class="dropdown-item">Create Post</a></li>
+                        {% if user.is_staff %}
+                        <li><a href="{% url 'admin:index' %}" class="dropdown-item">Admin Panel</a></li>
+                        {% endif %}
+                        <li><a href="{% url 'logout' %}" class="dropdown-item">Logout</a></li>
+                    </ul>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline">Log in</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                    Sign up
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Your existing footer here -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const toggle = document.getElementById('navbar-toggle');
+            const menu = document.getElementById('navbar-menu');
+            const authButtons = document.getElementById('auth-buttons');
+            
+            toggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                menu.classList.toggle('active');
+                authButtons.classList.toggle('active');
+            });
+            
+            // Mobile dropdown toggle
+            const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+            
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 768) {
+                        e.preventDefault();
+                        this.closest('.dropdown').classList.toggle('active');
+                    }
+                });
+            });
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.navbar-container') && !e.target.closest('.navbar-menu') && !e.target.closest('.auth-buttons')) {
+                    toggle.classList.remove('active');
+                    menu.classList.remove('active');
+                    authButtons.classList.remove('active');
+                }
+            });
+            
+            // Add active class to current page link
+            const currentLocation = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentLocation) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+    
+    {% block bottom_js %}{% endblock %}
+</body>
+</html>

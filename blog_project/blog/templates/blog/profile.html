@@ -1,0 +1,483 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ profile_user.username }}'s Profile | BlogApp{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        align-items: center;
+    }
+    
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid #f1f2f6;
+    }
+    
+    .profile-info {
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    .profile-name {
+        font-size: 2rem;
+        margin: 0 0 0.5rem 0;
+        color: var(--primary-color);
+    }
+    
+    .profile-username {
+        color: #6c757d;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    .profile-bio {
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+    
+    .profile-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .profile-detail {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6c757d;
+    }
+    
+    .profile-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .profile-stat {
+        background-color: #f8f9fa;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--border-radius);
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--secondary-color);
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .profile-social {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        transition: all 0.3s ease;
+    }
+    
+    .social-link:hover {
+        background-color: var(--secondary-color);
+        color: white;
+    }
+    
+    .profile-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .profile-tabs {
+        margin-bottom: 2rem;
+    }
+    
+    .tabs-container {
+        display: flex;
+        overflow-x: auto;
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+    }
+    
+    .tab {
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        color: #6c757d;
+        font-weight: 600;
+    }
+    
+    .tab.active {
+        color: var(--secondary-color);
+        border-bottom: 3px solid var(--secondary-color);
+    }
+    
+    .tab:hover:not(.active) {
+        background-color: #f8f9fa;
+    }
+    
+    .tab-content {
+        display: none;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .post-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .post-image {
+        height: 180px;
+        width: 100%;
+        object-fit: cover;
+    }
+    
+    .post-content {
+        padding: 1.5rem;
+    }
+    
+    .post-title {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-size: 1.25rem;
+    }
+    
+    .post-meta {
+        display: flex;
+        justify-content: space-between;
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+    
+    .no-posts {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .no-posts-title {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+    
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .profile-details, .profile-stats, .profile-social {
+            justify-content: center;
+        }
+        
+        .profile-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .profile-actions .btn {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .posts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-header">
+    {% if profile_user.profile.profile_picture %}
+        <img src="{{ profile_user.profile.profile_picture.url }}" alt="{{ profile_user.username }}" class="profile-avatar">
+    {% else %}
+        <img src="https://ui-avatars.com/api/?name={{ profile_user.username }}&size=150&background=random" alt="{{ profile_user.username }}" class="profile-avatar">
+    {% endif %}
+    
+    <div class="profile-info">
+        <h1 class="profile-name">{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+        <div class="profile-username">@{{ profile_user.username }}</div>
+        
+        {% if profile_user.profile.bio %}
+            <div class="profile-bio">{{ profile_user.profile.bio }}</div>
+        {% endif %}
+        
+        <div class="profile-details">
+            {% if profile_user.profile.location %}
+                <div class="profile-detail">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    {{ profile_user.profile.location }}
+                </div>
+            {% endif %}
+            
+            {% if profile_user.profile.website %}
+                <div class="profile-detail">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    <a href="{{ profile_user.profile.website }}" target="_blank" rel="noopener">{{ profile_user.profile.website|cut:"https://"|cut:"http://"|cut:"www." }}</a>
+                </div>
+            {% endif %}
+            
+            <div class="profile-detail">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Joined {{ profile_user.profile.joined_date|date:"F Y" }}
+            </div>
+        </div>
+        
+        <div class="profile-stats">
+            <div class="profile-stat">
+                <div class="stat-value">{{ post_count }}</div>
+                <div class="stat-label">Posts</div>
+            </div>
+            
+            <div class="profile-stat">
+                <div class="stat-value">{{ total_views }}</div>
+                <div class="stat-label">Views</div>
+            </div>
+            
+            <div class="profile-stat">
+                <div class="stat-value">{{ total_likes }}</div>
+                <div class="stat-label">Likes</div>
+            </div>
+        </div>
+        
+        <div class="profile-social">
+            {% if profile_user.profile.twitter %}
+                <a href="https://twitter.com/{{ profile_user.profile.twitter }}" class="social-link" target="_blank" rel="noopener">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
+                </a>
+            {% endif %}
+            
+            {% if profile_user.profile.github %}
+                <a href="https://github.com/{{ profile_user.profile.github }}" class="social-link" target="_blank" rel="noopener">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                </a>
+            {% endif %}
+            
+            {% if profile_user.profile.linkedin %}
+                <a href="https://linkedin.com/in/{{ profile_user.profile.linkedin }}" class="social-link" target="_blank" rel="noopener">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                </a>
+            {% endif %}
+        </div>
+        
+        {% if is_own_profile %}
+            <div class="profile-actions">
+                <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+                <a href="{% url 'post_create' %}" class="btn btn-secondary">Create New Post</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="profile-tabs">
+    <div class="tabs-container">
+        <div class="tab active" data-tab="posts">Posts</div>
+        {% if is_own_profile %}
+            <div class="tab" data-tab="drafts">Drafts</div>
+        {% endif %}
+        <div class="tab" data-tab="liked">Liked Posts</div>
+    </div>
+</div>
+
+<div class="tab-content active" id="posts">
+    {% if posts %}
+        <div class="posts-grid">
+            {% for post in posts %}
+                {% if post.status == 'published' or is_own_profile %}
+                    <div class="post-card">
+                        {% if post.featured_image %}
+                            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-image">
+                        {% endif %}
+                        
+                        <div class="post-content">
+                            {% if post.status == 'draft' and is_own_profile %}
+                                <span class="draft-badge">Draft</span>
+                            {% endif %}
+                            
+                            <h3 class="post-title">
+                                <a href="{% url 'post_detail' slug=post.slug %}">{{ post.title }}</a>
+                            </h3>
+                            
+                            <div class="post-meta">
+                                <span>{{ post.published_date|date:"M d, Y"|default:post.created_date|date:"M d, Y" }}</span>
+                                <span>{{ post.views }} views</span>
+                            </div>
+                            
+                            <div class="post-excerpt">
+                                {{ post.content|striptags|truncatewords:15 }}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-posts">
+            <h3 class="no-posts-title">No posts yet</h3>
+            {% if is_own_profile %}
+                <p>You haven't created any posts yet. Get started by writing your first blog post.</p>
+                <a href="{% url 'post_create' %}" class="btn btn-primary">Create New Post</a>
+            {% else %}
+                <p>{{ profile_user.username }} hasn't published any posts yet.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+{% if is_own_profile %}
+    <div class="tab-content" id="drafts">
+        {% with draft_posts=posts|dictsortreversed:"created_date" %}
+            {% if draft_posts %}
+                <div class="posts-grid">
+                    {% for post in draft_posts %}
+                        {% if post.status == 'draft' %}
+                            <div class="post-card">
+                                {% if post.featured_image %}
+                                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-image">
+                                {% endif %}
+                                
+                                <div class="post-content">
+                                    <span class="draft-badge">Draft</span>
+                                    
+                                    <h3 class="post-title">
+                                        <a href="{% url 'post_detail' slug=post.slug %}">{{ post.title }}</a>
+                                    </h3>
+                                    
+                                    <div class="post-meta">
+                                        <span>Created: {{ post.created_date|date:"M d, Y" }}</span>
+                                    </div>
+                                    
+                                    <div class="post-excerpt">
+                                        {{ post.content|striptags|truncatewords:15 }}
+                                    </div>
+                                    
+                                    <div class="post-actions">
+                                        <a href="{% url 'post_edit' slug=post.slug %}" class="btn btn-secondary">Edit</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-posts">
+                    <h3 class="no-posts-title">No drafts</h3>
+                    <p>You don't have any draft posts. Save a post as draft to see it here.</p>
+                    <a href="{% url 'post_create' %}" class="btn btn-primary">Create New Post</a>
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+{% endif %}
+
+<div class="tab-content" id="liked">
+    {% if liked_posts %}
+        <div class="posts-grid">
+            {% for post in liked_posts %}
+                <div class="post-card">
+                    {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-image">
+                    {% endif %}
+                    
+                    <div class="post-content">
+                        <h3 class="post-title">
+                            <a href="{% url 'post_detail' slug=post.slug %}">{{ post.title }}</a>
+                        </h3>
+                        
+                        <div class="post-meta">
+                            <span>By {{ post.author.username }}</span>
+                            <span>{{ post.published_date|date:"M d, Y" }}</span>
+                        </div>
+                        
+                        <div class="post-excerpt">
+                            {{ post.content|striptags|truncatewords:15 }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-posts">
+            <h3 class="no-posts-title">No liked posts</h3>
+            {% if is_own_profile %}
+                <p>You haven't liked any posts yet. Explore to find articles you enjoy!</p>
+                <a href="{% url 'post_list' %}" class="btn btn-primary">Explore Posts</a>
+            {% else %}
+                <p>{{ profile_user.username }} hasn't liked any posts yet.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to current tab and content
+                this.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Delete Post{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-container {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 2rem;
+        max-width: 600px;
+        margin: 2rem auto;
+        text-align: center;
+    }
+    
+    .delete-title {
+        color: #e74c3c;
+        margin-bottom: 1.5rem;
+    }
+    
+    .delete-warning {
+        margin-bottom: 2rem;
+        color: #555;
+    }
+    
+    .post-info {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+    
+    .post-info h3 {
+        margin-top: 0;
+        color: var(--primary-color);
+    }
+    
+    .btn-group {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .btn-danger {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c0392b;
+    }
+    
+    .btn-cancel {
+        background-color: #f8f9fa;
+        color: #333;
+        border: 1px solid #ddd;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+    }
+    
+    .btn-cancel:hover {
+        background-color: #e9ecef;
+    }
+    
+    @media (max-width: 480px) {
+        .btn-group {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delete-container">
+    <h1 class="delete-title">Delete Post</h1>
+    
+    <p class="delete-warning">Are you sure you want to delete this post? This action cannot be undone.</p>
+    
+    <div class="post-info">
+        <h3>{{ post.title }}</h3>
+        <p>Published: {{ post.published_date|date:"F d, Y" }}</p>
+        <p>{{ post.content|striptags|truncatewords:30 }}</p>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="btn-group">
+            <button type="submit" class="btn-danger">Delete Permanently</button>
+            <a href="{% url 'post_detail' slug=post.slug %}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
